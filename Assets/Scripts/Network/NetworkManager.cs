@@ -24,40 +24,22 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public event Action                  OnJoinedLobbyEvent;
     public event Action<DisconnectCause> OnDisconnectedEvent; 
     public event Action<List<RoomInfo>>  OnRoomListUpdatedEvent;
-    public event Action<Room>            OnJoinedRoomEvent;
-    public event Action<short>           OnRoomCreateFailedEvent;
-    public event Action<short>           OnRoomJoinFailedEvent;
 
-    private bool CanCreateOrJoinRoom() =>
-        PhotonNetwork.NetworkClientState is ClientState.JoinedLobby or ClientState.ConnectedToMasterServer;
+    public string LocalNickname
+    {
+        get => PhotonNetwork.LocalPlayer.NickName;
+        set => PhotonNetwork.LocalPlayer.NickName = value;
+    }
 
-    public void ConnectToMaster(string nickName)
+    public void ConnectToMaster()
     {
         Debug.Log("마스터 서버에 접속 시도...");
-        PhotonNetwork.LocalPlayer.NickName = nickName;
         PhotonNetwork.ConnectUsingSettings();
     }
 
     public void Disconnect()
     {
         PhotonNetwork.Disconnect();
-    }
-
-    public void CreateRoom(string roomName, int maxPlayer)
-    {
-        if (CanCreateOrJoinRoom() == false)
-            return;
-        
-        PhotonNetwork.CreateRoom(roomName,
-            new RoomOptions() { MaxPlayers = (byte)maxPlayer, IsVisible = true, IsOpen = true });
-    }
-
-    public void JoinRoom(string roomName)
-    {
-        if (CanCreateOrJoinRoom() == false)
-            return;
-
-        PhotonNetwork.JoinRoom(roomName);
     }
     
     /**************************************************Callbacks*******************************************************/
@@ -83,26 +65,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.NetworkClientState != ClientState.JoinedLobby)
             return;
         
+        Debug.Log("로비 접속");
         OnJoinedLobbyEvent?.Invoke();
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
         OnRoomListUpdatedEvent?.Invoke(roomList);
-    }
-
-    public override void OnJoinedRoom()
-    {
-        OnJoinedRoomEvent?.Invoke(PhotonNetwork.CurrentRoom);
-    }
-
-    public override void OnCreateRoomFailed(short returnCode, string message)
-    {
-        OnRoomCreateFailedEvent?.Invoke(returnCode);
-    }
-
-    public override void OnJoinRoomFailed(short returnCode, string message)
-    {
-        OnRoomJoinFailedEvent?.Invoke(returnCode);
     }
 }
