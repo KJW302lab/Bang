@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -22,73 +21,88 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
     #endregion
 
-    public static bool IsConnected => PhotonNetwork.IsConnected;
+    public event Action                  OnJoinedLobbyEvent;
+    public event Action<DisconnectCause> OnDisconnectedEvent; 
+    public event Action<List<RoomInfo>>  OnRoomListUpdatedEvent;
+    public event Action<Room>            OnJoinedRoomEvent;
+    public event Action<short>           OnRoomCreateFailedEvent;
+    public event Action<short>           OnRoomJoinFailedEvent;
 
-    public event Action<List<RoomInfo>> RoomListUpdated; 
+    private bool CanCreateOrJoinRoom() =>
+        PhotonNetwork.NetworkClientState is ClientState.JoinedLobby or ClientState.ConnectedToMasterServer;
 
-    public void ConnectToMaster()
+    public void ConnectToMaster(string nickName)
     {
-        Debug.Log("마스터 서버에 연결 시도중...");
+        Debug.Log("마스터 서버에 접속 시도...");
+        PhotonNetwork.LocalPlayer.NickName = nickName;
         PhotonNetwork.ConnectUsingSettings();
     }
-    
+
     public void Disconnect()
     {
         PhotonNetwork.Disconnect();
     }
 
-    public void CreateRoom(string roomName, RoomOptions roomOptions = null)
+    public void CreateRoom(string roomName, int maxPlayer)
     {
-        PhotonNetwork.CreateRoom(roomName, roomOptions);
+        if (CanCreateOrJoinRoom() == false)
+            return;
+        
+        PhotonNetwork.CreateRoom(roomName,
+            new RoomOptions() { MaxPlayers = (byte)maxPlayer, IsVisible = true, IsOpen = true });
     }
 
     public void JoinRoom(string roomName)
     {
+        if (CanCreateOrJoinRoom() == false)
+            return;
+
         PhotonNetwork.JoinRoom(roomName);
     }
+    
+    /**************************************************Callbacks*******************************************************/
+    /******************************************************************************************************************/
 
-    #region Callbacks
     public override void OnConnectedToMaster()
     {
-        Debug.Log($"마스터 서버에 연결 : {PhotonNetwork.IsConnected}");
-        Debug.Log($"로비 입장 시도...");
+        Debug.Log("마스터 서버 연결");
+        Debug.Log("로비 접속중...");
         PhotonNetwork.JoinLobby();
     }
 
     public override void OnDisconnected(DisconnectCause cause)
     {
-        Debug.Log($"마스터 서버와 연결 끊김 : {cause}");
+        if (PhotonNetwork.IsConnected)
+            return;
+        
+        OnDisconnectedEvent?.Invoke(cause);
     }
 
     public override void OnJoinedLobby()
     {
-        Debug.Log("로비에 입장");
-    }
-
-    public override void OnJoinedRoom()
-    {
-        var room = PhotonNetwork.CurrentRoom;
-        var joinedPlayers = room.Players.Values.ToList();
+        if (PhotonNetwork.NetworkClientState != ClientState.JoinedLobby)
+            return;
         
-        Debug.Log($"방 입장 \nName : {room.Name}\nMaxPlayer:{room.MaxPlayers}");
-
-        string playerListMsg = "플레이어 목록 :";
-        
-        foreach (var player in joinedPlayers)
-            playerListMsg += $"\n[{player.ActorNumber}] {player.NickName}";
-        
-        Debug.Log(playerListMsg);
-    }
-
-    public override void OnCreateRoomFailed(short returnCode, string message)
-    {
-        Debug.Log($"방 생성 실패 : {message}");
+        OnJoinedLobbyEvent?.Invoke();
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
-        RoomListUpdated?.Invoke(roomList);
+        OnRoomListUpdatedEvent?.Invoke(roomList);
     }
 
-    #endregion
+    public override void OnJoinedRoom()
+    {
+        OnJoinedRoomEvent?.Invoke(PhotonNetwork.CurrentRoom);
+    }
+
+    public override void OnCreateRoomFailed(short returnCode, string message)
+    {
+        OnRoomCreateFailedEvent?.Invoke(returnCode);
+    }
+
+    public override void OnJoinRoomFailed(short returnCode, string message)
+    {
+        OnRoomJoinFailedEvent?.Invoke(returnCode);
+    }
 }

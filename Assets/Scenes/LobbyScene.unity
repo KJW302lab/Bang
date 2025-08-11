@@ -471,8 +471,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72341193ed3c49958fb27049e11b7f69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomName: Hello!
-  maxPlayer: 7
+  nickname: "\uAE40\uC9C0\uC6C5"
+  roomName: HELLO
+  maxPlayer: 2
 --- !u!1 &1403593463
 GameObject:
   m_ObjectHideFlags: 0
