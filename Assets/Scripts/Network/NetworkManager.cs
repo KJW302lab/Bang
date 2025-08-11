@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Photon.Pun;
 using Photon.Realtime;
@@ -20,6 +22,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
     #endregion
 
+    public static bool IsConnected => PhotonNetwork.IsConnected;
+
+    public event Action<List<RoomInfo>> RoomListUpdated; 
+
     public void ConnectToMaster()
     {
         Debug.Log("마스터 서버에 연결 시도중...");
@@ -31,9 +37,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.Disconnect();
     }
 
-    public bool CreateRoom(string roomName, RoomOptions roomOptions = null)
+    public void CreateRoom(string roomName, RoomOptions roomOptions = null)
     {
-        return PhotonNetwork.CreateRoom(roomName, roomOptions);
+        PhotonNetwork.CreateRoom(roomName, roomOptions);
+    }
+
+    public void JoinRoom(string roomName)
+    {
+        PhotonNetwork.JoinRoom(roomName);
     }
 
     #region Callbacks
@@ -41,8 +52,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         Debug.Log($"마스터 서버에 연결 : {PhotonNetwork.IsConnected}");
         Debug.Log($"로비 입장 시도...");
-
-        PhotonNetwork.LocalPlayer.NickName = "김지웅";
         PhotonNetwork.JoinLobby();
     }
 
@@ -63,12 +72,23 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         
         Debug.Log($"방 입장 \nName : {room.Name}\nMaxPlayer:{room.MaxPlayers}");
 
-        string playerListMsg = "플레이어 목록 :\n";
+        string playerListMsg = "플레이어 목록 :";
         
         foreach (var player in joinedPlayers)
-            playerListMsg += $"[{player.ActorNumber}] {player.NickName}";
+            playerListMsg += $"\n[{player.ActorNumber}] {player.NickName}";
         
         Debug.Log(playerListMsg);
     }
+
+    public override void OnCreateRoomFailed(short returnCode, string message)
+    {
+        Debug.Log($"방 생성 실패 : {message}");
+    }
+
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        RoomListUpdated?.Invoke(roomList);
+    }
+
     #endregion
 }
