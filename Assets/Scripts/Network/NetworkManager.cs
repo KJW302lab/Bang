@@ -24,12 +24,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public event Action                  OnJoinedLobbyEvent;
     public event Action<DisconnectCause> OnDisconnectedEvent; 
     public event Action<List<RoomInfo>>  OnRoomListUpdatedEvent;
+    public event Action<short>           OnCreateRoomEvent;
 
     public string LocalNickname
     {
         get => PhotonNetwork.LocalPlayer.NickName;
         set => PhotonNetwork.LocalPlayer.NickName = value;
     }
+
+    private event Action<short> _onRoomCreateFailed;
+    private event Action<short> _onRoomJoinFailed;
 
     public void ConnectToMaster()
     {
@@ -40,6 +44,17 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void Disconnect()
     {
         PhotonNetwork.Disconnect();
+    }
+
+    public void CreateRoom(string roomName, int maxPlayer, Action<short> onFailed = null)
+    {
+        _onRoomCreateFailed = onFailed;
+        PhotonNetwork.CreateRoom(roomName, new RoomOptions() { MaxPlayers = (byte)maxPlayer });
+    }
+
+    public void JoinRoom(string roomName, Action<short> onFailed = null)
+    {
+        _onRoomJoinFailed = onFailed;
     }
     
     /**************************************************Callbacks*******************************************************/
@@ -72,5 +87,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
         OnRoomListUpdatedEvent?.Invoke(roomList);
+    }
+
+    public override void OnCreateRoomFailed(short returnCode, string message)
+    {
+        _onRoomCreateFailed?.Invoke(returnCode);
+    }
+
+    public override void OnJoinRoomFailed(short returnCode, string message)
+    {
+        _onRoomJoinFailed?.Invoke(returnCode);
     }
 }
