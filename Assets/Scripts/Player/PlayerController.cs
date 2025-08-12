@@ -19,10 +19,6 @@ public class PlayerController : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
-        _cam.transform.SetParent(transform);
-        _cam.transform.localPosition = new Vector3(0f, 1.75f, 0f);
-        _cam.transform.localRotation = Quaternion.identity;
     }
 
     private void Update()
