@@ -1,49 +1,17 @@
 using Photon.Pun;
-using UnityEngine;
 
 public class Player : MonoBehaviourPun
 {
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float rotateSpeed = 10f;
+    public float MoveSpeed   { get; private set; } = 2f;
+    public float RotateSpeed { get; private set; } = 15f;
 
-    private Animator _animator;
+    private PlayerView _view;
 
     private void Awake()
     {
-        _animator = GetComponent<Animator>();
-    }
-
-    private void Update()
-    {
-        if (photonView.IsMine == false) return;
+        _view = gameObject.AddComponent<PlayerView>();
         
-        HandleMove();
-        HandleFire();
-    }
-
-    private void HandleMove()
-    {
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
-
-        Vector3 move = new Vector3(h, 0, v);
-
-        if (move == Vector3.zero)
-        {
-            _animator.SetBool("IsWalk", false);
-            return;
-        }
-        
-        transform.Translate(move * moveSpeed * Time.deltaTime, Space.World);
-        Quaternion targetRotation = Quaternion.LookRotation(move, Vector3.up);
-        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotateSpeed);
-        _animator.SetBool("IsWalk", true);
-    }
-
-    private void HandleFire()
-    {
-        if (Input.GetKeyDown(KeyCode.Space) == false) return;
-        
-        _animator.SetTrigger("Fire");
+        if (photonView.IsMine)
+            gameObject.AddComponent<PlayerController>();
     }
 }
