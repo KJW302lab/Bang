@@ -6,6 +6,9 @@ public class RoomCard : MonoBehaviour
 {
     public static RoomCard SelectedCard { get; private set; }
 
+    [SerializeField] private Text roomNameLabel;
+    [SerializeField] private Text playerCountLabel;
+
     private Button   _button;
     private RoomInfo _info;
 
@@ -32,5 +35,8 @@ public class RoomCard : MonoBehaviour
     public void SetCard(RoomInfo info)
     {
         _info = info;
+
+        roomNameLabel.text = info.Name;
+        playerCountLabel.text = $"{info.PlayerCount}/{info.MaxPlayers}";
     }
 }

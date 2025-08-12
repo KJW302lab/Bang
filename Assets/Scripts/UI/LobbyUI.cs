@@ -42,7 +42,15 @@ public class LobbyUI : MonoBehaviour
     {
         NetworkManager.Instance.OnJoinedLobbyEvent     += ShowLobby;
         NetworkManager.Instance.OnRoomListUpdatedEvent += RefreshRoomList;
-        NetworkManager.Instance.OnCreateRoomEvent      += OnCreateRoomFailed;
+        NetworkManager.Instance.OnJoinedRoomEvent      += OnJoinedRoom;
+    }
+    
+    private void OnDestroy()
+    {
+        if (NetworkManager.Instance == null) return;
+        NetworkManager.Instance.OnJoinedLobbyEvent     -= ShowLobby;
+        NetworkManager.Instance.OnRoomListUpdatedEvent -= RefreshRoomList;
+        NetworkManager.Instance.OnJoinedRoomEvent      -= OnJoinedRoom;
     }
 
     private void OnConnectButtonPressed()
@@ -120,5 +128,10 @@ public class LobbyUI : MonoBehaviour
     private void RefreshRoomList(List<RoomInfo> roomList)
     {
         roomListLayout.SetRoomList(roomList);
+    }
+
+    private void OnJoinedRoom(Room room)
+    {
+        
     }
 }

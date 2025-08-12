@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Photon.Realtime;
 using UnityEngine;
 
@@ -23,13 +24,16 @@ public class RoomListLayout : MonoBehaviour
 
     public void SetRoomList(List<RoomInfo> roomList)
     {
-        SetCardList(roomList.Count);
+        int roomCount = roomList
+            .Count(room => room.RemovedFromList == false);
+        
+        SetCardList(roomCount);
 
         for (var i = 0; i < _cards.Count; i++)
         {
             RoomCard card = _cards[i];
 
-            if (i > roomList.Count)
+            if (i >= roomList.Count || roomList[i].RemovedFromList)
             {
                 card.gameObject.SetActive(false);
                 continue;

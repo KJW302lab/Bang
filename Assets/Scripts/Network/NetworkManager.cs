@@ -24,7 +24,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public event Action                  OnJoinedLobbyEvent;
     public event Action<DisconnectCause> OnDisconnectedEvent; 
     public event Action<List<RoomInfo>>  OnRoomListUpdatedEvent;
-    public event Action<short>           OnCreateRoomEvent;
+    public event Action<Room>            OnJoinedRoomEvent; 
 
     public string LocalNickname
     {
@@ -55,6 +55,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void JoinRoom(string roomName, Action<short> onFailed = null)
     {
         _onRoomJoinFailed = onFailed;
+        PhotonNetwork.JoinRoom(roomName);
     }
     
     /**************************************************Callbacks*******************************************************/
@@ -97,5 +98,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
         _onRoomJoinFailed?.Invoke(returnCode);
+    }
+
+    public override void OnJoinedRoom()
+    {
+        if (PhotonNetwork.NetworkClientState != ClientState.Joined)
+            return;
+        
+        OnJoinedRoomEvent?.Invoke(PhotonNetwork.CurrentRoom);
     }
 }
