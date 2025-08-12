@@ -37,6 +37,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void ConnectToMaster()
     {
+        if (PhotonNetwork.IsConnected)
+            return;
+        
         Debug.Log("마스터 서버에 접속 시도...");
         PhotonNetwork.ConnectUsingSettings();
     }
