@@ -30,7 +30,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
         
-        transform.Translate(move * _model.MoveSpeed * Time.deltaTime, Space.World);
+        transform.Translate(move.normalized * _model.MoveSpeed * Time.deltaTime, Space.World);
         Quaternion targetRotation = Quaternion.LookRotation(move, Vector3.up);
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * _model.RotateSpeed);
         _view.PlayMove();
