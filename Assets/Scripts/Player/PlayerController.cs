@@ -2,66 +2,44 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private Player _model;
+    private Player     _model;
     private PlayerView _view;
-    private Camera _cam;
     
-    private float _xRotation = 0f;
-
     private void Awake()
     {
-        _cam = Camera.main;
         _model = GetComponent<Player>();
-        _view = GetComponent<PlayerView>();
-    }
-
-    private void Start()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        _view  = GetComponent<PlayerView>();
     }
 
     private void Update()
     {
-        HandleLook();
         HandleMove();
         HandleFire();
     }
-
-    private void HandleLook()
-    {
-        float mouseX = Input.GetAxis("Mouse X") * _model.RotateSpeed * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * _model.RotateSpeed * Time.deltaTime;
-
-        transform.Rotate(Vector3.up * mouseX);
-
-        _xRotation -= mouseY;
-        _xRotation = Mathf.Clamp(_xRotation, -80f, 80f);
-
-        _cam.transform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
-    }
-
+    
     private void HandleMove()
     {
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
-        if (Mathf.Approximately(h, 0f) && Mathf.Approximately(v, 0f))
+        Vector3 move = new Vector3(h, 0, v);
+
+        if (move == Vector3.zero)
         {
             _view.PlayIdle();
             return;
         }
-
-        Vector3 move = transform.right * h + transform.forward * v;
-        move.Normalize();
-
+        
         transform.Translate(move * _model.MoveSpeed * Time.deltaTime, Space.World);
+        Quaternion targetRotation = Quaternion.LookRotation(move, Vector3.up);
+        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * _model.RotateSpeed);
         _view.PlayMove();
     }
 
     private void HandleFire()
     {
         if (Input.GetKeyDown(KeyCode.Space) == false) return;
+        
         _view.PlayFire();
     }
 }
