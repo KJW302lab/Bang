@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerView : MonoBehaviour
 {
-    private static readonly int IsWalk = Animator.StringToHash("IsWalk");
+    private static readonly int IsMove = Animator.StringToHash("IsMove");
     private static readonly int Fire   = Animator.StringToHash("Fire");
     private static readonly int Dead   = Animator.StringToHash("Dead");
     
@@ -15,12 +15,12 @@ public class PlayerView : MonoBehaviour
 
     public void PlayIdle()
     {
-        _animator.SetBool(IsWalk, false);
+        _animator.SetBool(IsMove, false);
     }
 
     public void PlayMove()
     {
-        _animator.SetBool(IsWalk, true);
+        _animator.SetBool(IsMove, true);
     }
 
     public void PlayFire()
