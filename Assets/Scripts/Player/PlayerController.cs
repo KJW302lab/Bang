@@ -40,6 +40,9 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) == false) return;
         
+        SnowBall.Spawn(transform.position)
+            .Fire(transform.forward, 10f);
+        
         _view.PlayFire();
     }
 }
