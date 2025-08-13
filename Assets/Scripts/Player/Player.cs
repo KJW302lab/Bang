@@ -25,6 +25,9 @@ public class Player : MonoBehaviourPun
         _view = gameObject.AddComponent<PlayerView>();
 
         if (photonView.IsMine)
+        {
             gameObject.AddComponent<PlayerController>();
+            CameraManager.Instance.SetFollow(transform);
+        }
     }
 }
