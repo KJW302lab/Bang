@@ -84,7 +84,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.NetworkClientState != ClientState.JoinedLobby)
             return;
         
-        Debug.Log("로비 접속");
         OnJoinedLobbyEvent?.Invoke();
     }
 

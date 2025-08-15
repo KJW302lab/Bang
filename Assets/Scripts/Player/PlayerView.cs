@@ -4,7 +4,7 @@ public class PlayerView : MonoBehaviour
 {
     private static readonly int IsMove = Animator.StringToHash("IsMove");
     private static readonly int Fire   = Animator.StringToHash("Fire");
-    private static readonly int Dead   = Animator.StringToHash("Dead");
+    private static readonly int Hit    = Animator.StringToHash("Hit");
     
     private Animator _animator;
 
@@ -28,8 +28,8 @@ public class PlayerView : MonoBehaviour
         _animator.SetTrigger(Fire);
     }
 
-    public void PlayDead()
+    public void PlayHit()
     {
-        _animator.SetTrigger(Dead);
+        _animator.SetTrigger(Hit);
     }
 }

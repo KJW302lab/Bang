@@ -30,4 +30,11 @@ public class Player : MonoBehaviourPun
             CameraManager.Instance.SetFollow(transform);
         }
     }
+
+    [PunRPC]
+    private void GetHit()
+    {
+        Debug.Log("눈덩이에 맞았습니다.");
+        _view.PlayHit();
+    }
 }

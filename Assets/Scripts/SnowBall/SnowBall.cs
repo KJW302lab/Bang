@@ -42,6 +42,28 @@ public class SnowBall : MonoBehaviourPun
         Kill();
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (photonView.IsMine == false) return;
+
+        if (other.CompareTag("Wall"))
+        {
+            Kill();
+            return;
+        }
+
+        if (other.CompareTag("Player") == false)
+            return;
+
+        if (other.TryGetComponent(out PhotonView view) == false)
+            return;
+
+        if (view.IsMine)
+            return;
+        
+        view.RPC("GetHit", RpcTarget.All);
+    }
+
     private void Kill()
     {
         if (_fireCoroutine != null)
