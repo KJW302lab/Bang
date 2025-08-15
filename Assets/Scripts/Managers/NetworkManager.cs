@@ -7,18 +7,27 @@ using UnityEngine;
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
     #region Singleton
-    public static NetworkManager Instance { get; private set; }
 
-    private void Awake()
+    private static NetworkManager _instance;
+
+    public static NetworkManager Instance
     {
-        if (Instance != null && Instance != this)
+        get
         {
-            Destroy(gameObject);
-            return;
+            if (_instance == null)
+                _instance = FindObjectOfType<NetworkManager>();
+
+            if (_instance == null)
+            {
+                GameObject go = new GameObject(name: "NetworkManager");
+                _instance = go.AddComponent<NetworkManager>();
+                DontDestroyOnLoad(go);
+            }
+
+            return _instance;
         }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
+
     #endregion
 
     public event Action                  OnJoinedLobbyEvent;
@@ -49,13 +58,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.Disconnect();
     }
 
-    public void CreateRoom(string roomName, int maxPlayer, Action<short> onFailed = null)
+    public void CreateRoom(string roomName, int maxPlayer, Action<short> onFailed)
     {
         _onRoomCreateFailed = onFailed;
         PhotonNetwork.CreateRoom(roomName, new RoomOptions() { MaxPlayers = (byte)maxPlayer });
     }
 
-    public void JoinRoom(string roomName, Action<short> onFailed = null)
+    public void JoinRoom(string roomName, Action<short> onFailed)
     {
         _onRoomJoinFailed = onFailed;
         PhotonNetwork.JoinRoom(roomName);

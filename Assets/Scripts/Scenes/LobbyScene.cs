@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class LobbyScene : MonoBehaviour
 {
-    private void Start()
+    private void Awake()
     {
         NetworkManager.Instance.OnJoinedLobbyEvent += OnJoinedLobby;
         
@@ -31,5 +31,6 @@ public class LobbyScene : MonoBehaviour
     {
         UIDim.Release();
         UIManager.Instance.Close<UISetNickname>();
+        UIManager.Instance.Open<UILobby>();
     }
 }
