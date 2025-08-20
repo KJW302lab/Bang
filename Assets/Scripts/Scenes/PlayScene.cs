@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
 
-public class PlayScene : MonoBehaviourPunCallbacks
+public class PlayScene : MonoBehaviour
 {
     [SerializeField] private List<Transform> spawnPositions;
     

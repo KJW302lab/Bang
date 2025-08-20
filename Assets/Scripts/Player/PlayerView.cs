@@ -30,6 +30,11 @@ public class PlayerView : MonoBehaviour
         _canvas.SetNickname(nickname);
     }
 
+    public void SetHealth(int health, int maxHealth)
+    {
+        _canvas.SetHealth(health, maxHealth);
+    }
+
     public void PlayIdle()
     {
         _animator.SetBool(IsMove, false);

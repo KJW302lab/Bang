@@ -13,7 +13,10 @@ public class PlayerSlot : MonoBehaviour
         Player = player;
         
         nicknameLabel.text = player.NickName;
-        SetReadyLabel(false);
+
+        bool isReady = player.CustomProperties.ContainsKey("IsReady") && (bool)player.CustomProperties["IsReady"];
+        
+        SetReadyLabel(isReady);
     }
 
     public void SetReadyLabel(bool isReady)

@@ -44,8 +44,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     private event Action<short> _onRoomCreateFailed;
     private event Action<short> _onRoomJoinFailed;
-
+    
     public bool IsConnected => PhotonNetwork.IsConnected;
+    public ClientState State => PhotonNetwork.NetworkClientState;
+    public int CurrentPlayerCount => PhotonNetwork.CurrentRoom.PlayerCount;
 
     private void Awake()
     {
@@ -88,8 +90,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void LoadSceneAllPlayers(string sceneName)
     {
         if (PhotonNetwork.IsMasterClient == false) return;
+
+        PhotonNetwork.CurrentRoom.IsVisible = false;
         
         PhotonNetwork.LoadLevel(sceneName);
+    }
+
+    public void LeaveRoom()
+    {
+        if (State != ClientState.Joined)
+            return;
+        
+        LocalPlayer.CustomProperties.Clear();
+        
+        PhotonNetwork.LeaveRoom();
     }
     
     /**************************************************Callbacks*******************************************************/

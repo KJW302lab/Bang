@@ -5,9 +5,6 @@ public class LobbyScene : MonoBehaviour
 {
     private void Awake()
     {
-        NetworkManager.Instance.OnJoinedLobbyEvent += OnJoinedLobby;
-        NetworkManager.Instance.OnJoinedRoomEvent  += OnJoinedRoom;
-        
         if (string.IsNullOrEmpty(NetworkManager.Instance.LocalPlayer.NickName))
         {
             var uiSetNickname = UIManager.Instance.Open<UISetNickname>();
@@ -15,6 +12,18 @@ public class LobbyScene : MonoBehaviour
         }
         else
             Connect();
+    }
+
+    private void OnEnable()
+    {
+        NetworkManager.Instance.OnJoinedLobbyEvent += OnJoinedLobby;
+        NetworkManager.Instance.OnJoinedRoomEvent  += OnJoinedRoom;
+    }
+
+    private void OnDisable()
+    {
+        NetworkManager.Instance.OnJoinedLobbyEvent -= OnJoinedLobby;
+        NetworkManager.Instance.OnJoinedRoomEvent  -= OnJoinedRoom;
     }
 
     private void OnNicknameSet(string nickname)
@@ -25,6 +34,12 @@ public class LobbyScene : MonoBehaviour
 
     private void Connect()
     {
+        if (NetworkManager.Instance.State == ClientState.JoinedLobby)
+        {
+            OnJoinedLobby();
+            return;
+        }
+        
         UIDim.Set("접속중");
         NetworkManager.Instance.ConnectToMaster();
     }

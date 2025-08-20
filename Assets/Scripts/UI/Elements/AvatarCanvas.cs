@@ -3,7 +3,8 @@ using UnityEngine.UI;
 
 public class AvatarCanvas : MonoBehaviour
 {
-    [SerializeField] private Text nicknameLabel;
+    [SerializeField] private Text   nicknameLabel;
+    [SerializeField] private Slider healthBar;
 
     private Camera _mainCam;
 
@@ -15,6 +16,12 @@ public class AvatarCanvas : MonoBehaviour
     public void SetNickname(string nickname)
     {
         nicknameLabel.text = nickname;
+    }
+
+    public void SetHealth(int health, int maxHealth)
+    {
+        healthBar.maxValue = maxHealth;
+        healthBar.value = health;
     }
 
     private void Update()

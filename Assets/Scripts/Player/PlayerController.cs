@@ -4,6 +4,8 @@ public class PlayerController : MonoBehaviour
 {
     private Player     _model;
     private PlayerView _view;
+
+    public bool CanMove { get; set; } = true;
     
     private void Awake()
     {
@@ -13,6 +15,9 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (CanMove == false)
+            return;
+        
         HandleMove();
         HandleFire();
     }
