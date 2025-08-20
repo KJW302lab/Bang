@@ -13,7 +13,6 @@ public class UILobby : UIBase
 
     private void Awake()
     {
-        NetworkManager.Instance.OnJoinedRoomEvent += OnJoinedRoom;
         createButton.onClick.AddListener(OnCreateButtonPressed);
         roomList.OnRoomSelectedEvent += OnRoomSelected;
     }
@@ -58,20 +57,4 @@ public class UILobby : UIBase
         simplePopup.ShowPopup("방을 생성할 수 없습니다.");
     }
     #endregion
-
-    private void OnJoinedRoom(Room room)
-    {
-        // todo
-        Close();
-        string msg = $"[{room.Name}]에 입장했습니다";
-
-        var players = room.Players.Values
-            .OrderBy(p => p.ActorNumber)
-            .ToList();
-        
-        foreach (var player in players)
-            msg += $"\n플레이어[{player.NickName}]";
-        
-        Debug.Log(msg);
-    }
 }

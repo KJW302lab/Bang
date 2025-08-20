@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -30,19 +31,26 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     #endregion
 
-    public event Action                  OnJoinedLobbyEvent;
-    public event Action<DisconnectCause> OnDisconnectedEvent; 
-    public event Action<List<RoomInfo>>  OnRoomListUpdatedEvent;
-    public event Action<Room>            OnJoinedRoomEvent; 
+    public event Action                         OnJoinedLobbyEvent;
+    public event Action<DisconnectCause>        OnDisconnectedEvent;
+    public event Action<List<RoomInfo>>         OnRoomListUpdatedEvent;
+    public event Action<Room>                   OnJoinedRoomEvent;
+    public event Action                         OnLeftRoomEvent;
+    public event Action<Photon.Realtime.Player> OnOtherPlayerJoinedEvent;
+    public event Action<Photon.Realtime.Player> OnOtherPlayerLeftEvent;
+    public event Action<Photon.Realtime.Player, Hashtable> OnPlayerPropertiesUpdatedEvent;
 
-    public string LocalNickname
-    {
-        get => PhotonNetwork.LocalPlayer.NickName;
-        set => PhotonNetwork.LocalPlayer.NickName = value;
-    }
+    public Photon.Realtime.Player LocalPlayer => PhotonNetwork.LocalPlayer;
 
     private event Action<short> _onRoomCreateFailed;
     private event Action<short> _onRoomJoinFailed;
+
+    public bool IsConnected => PhotonNetwork.IsConnected;
+
+    private void Awake()
+    {
+        PhotonNetwork.AutomaticallySyncScene = true;
+    }
 
     public void ConnectToMaster()
     {
@@ -68,6 +76,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         _onRoomJoinFailed = onFailed;
         PhotonNetwork.JoinRoom(roomName);
+    }
+
+    public void SetPlayerProperties(string key, object value)
+    {
+        Hashtable props = new Hashtable();
+        props[key] = value;
+        LocalPlayer.SetCustomProperties(props);
+    }
+
+    public void LoadSceneAllPlayers(string sceneName)
+    {
+        if (PhotonNetwork.IsMasterClient == false) return;
+        
+        PhotonNetwork.LoadLevel(sceneName);
     }
     
     /**************************************************Callbacks*******************************************************/
@@ -113,9 +135,26 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        if (PhotonNetwork.NetworkClientState != ClientState.Joined)
-            return;
-        
         OnJoinedRoomEvent?.Invoke(PhotonNetwork.CurrentRoom);
+    }
+
+    public override void OnLeftRoom()
+    {
+        OnLeftRoomEvent?.Invoke();
+    }
+
+    public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
+    {
+        OnOtherPlayerJoinedEvent?.Invoke(newPlayer);
+    }
+
+    public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
+    {
+        OnOtherPlayerLeftEvent?.Invoke(otherPlayer);
+    }
+
+    public override void OnPlayerPropertiesUpdate(Photon.Realtime.Player targetPlayer, Hashtable changedProps)
+    {
+        OnPlayerPropertiesUpdatedEvent?.Invoke(targetPlayer, changedProps);
     }
 }

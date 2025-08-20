@@ -1,22 +1,21 @@
+using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
 
 public class PlayScene : MonoBehaviourPunCallbacks
 {
-    private void Start()
+    [SerializeField] private List<Transform> spawnPositions;
+    
+    private void Awake()
     {
-        PhotonNetwork.ConnectUsingSettings();
-    }
+        if (NetworkManager.Instance.IsConnected == false) return;
 
-    public override void OnConnectedToMaster()
-    {
-        PhotonNetwork.JoinRandomOrCreateRoom();
-    }
+        var localPlayer = NetworkManager.Instance.LocalPlayer;
 
-    public override void OnJoinedRoom()
-    {
-        var position = Random.insideUnitSphere * 1.5f;
-        position.y = 0;
+        int actorNumber = localPlayer.ActorNumber;
+
+        Vector3 position = spawnPositions[actorNumber].position;
+        
         PhotonNetwork.Instantiate("Player", position, Quaternion.identity);
     }
 }

@@ -1,3 +1,4 @@
+using Photon.Realtime;
 using UnityEngine;
 
 public class LobbyScene : MonoBehaviour
@@ -5,8 +6,9 @@ public class LobbyScene : MonoBehaviour
     private void Awake()
     {
         NetworkManager.Instance.OnJoinedLobbyEvent += OnJoinedLobby;
+        NetworkManager.Instance.OnJoinedRoomEvent  += OnJoinedRoom;
         
-        if (string.IsNullOrEmpty(NetworkManager.Instance.LocalNickname))
+        if (string.IsNullOrEmpty(NetworkManager.Instance.LocalPlayer.NickName))
         {
             var uiSetNickname = UIManager.Instance.Open<UISetNickname>();
             uiSetNickname.Initialize(OnNicknameSet);
@@ -17,7 +19,7 @@ public class LobbyScene : MonoBehaviour
 
     private void OnNicknameSet(string nickname)
     {
-        NetworkManager.Instance.LocalNickname = nickname;
+        NetworkManager.Instance.LocalPlayer.NickName = nickname;
         Connect();
     }
 
@@ -32,5 +34,13 @@ public class LobbyScene : MonoBehaviour
         UIDim.Release();
         UIManager.Instance.Close<UISetNickname>();
         UIManager.Instance.Open<UILobby>();
+    }
+
+    private void OnJoinedRoom(Room room)
+    {
+        UIManager.Instance.Close<UILobby>();
+        
+        var readyRoom = UIManager.Instance.Open<UIReadyRoom>();
+        readyRoom.Initialize(room);
     }
 }
